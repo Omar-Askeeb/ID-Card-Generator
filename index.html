@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./style.css" />
+    <title>ID Generator</title>
+    <!-- adding icon -->
+    <link rel="icon" href="./img/qr-code.svg" type="image/icon type" />
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FileSaver CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.2/FileSaver.min.js"></script>
+    <!-- QR code CDN -->
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <!-- JSZip CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js"></script>
+    <!-- My js -->
+    <script src="./js/app.js" defer></script>
+    <!-- jsbarcode -->
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/jsbarcode/3.11.5/JsBarcode.all.min.js"
+      integrity="sha512-QEAheCz+x/VkKtxeGoDq6nsGyzTx/0LMINTgQjqZ0h3+NjP+bCsPYz3hn0HnBkGmkIFSr7QcEZT+KyEM7lbLPQ=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    ></script>
+    <style>
+      #spinner {
+        display: none;
+      }
+    </style>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ["Poppins", "sans-serif"],
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body>
+    <header class="bg-red-500 p-4 mb-10">
+      <div class="max-w-5xl m-auto">
+        <div class="text-xl font-bold text-white">ID Card Generator</div>
+      </div>
+    </header>
+    <main>
+      <div
+        class="flex flex-col-reverse align-center justify-center m-auto md:max-w-4xl md:flex-row p-10"
+      >
+        <div class="w-full md:w-2/3 mr-24">
+          <h1 class="text-3xl font-bold mb-5 md:text-4xl">ID Card Generator</h1>
+          <p class="mb-4">Convert your Data into QR Code.</p>
+          <form action="" id="generate-form" class="mt-4">
+            <input
+              id="emp_name"
+              placeholder="Enter The Employee Name"
+              type="text"
+              class="w-full border-2 border-gray-200 rounded p-3 text-gray-dark mr-2 focus:outline-none mb-5"
+              required
+            />
+            <input
+              id="job_role"
+              placeholder="Enter The Employee Role"
+              type="text"
+              class="w-full border-2 border-gray-200 rounded p-3 text-gray-dark mr-2 focus:outline-none mb-5"
+              required
+            />
+            <input
+              id="emp_dep"
+              placeholder="Enter The Employee Department"
+              type="text"
+              class="w-full border-2 border-gray-200 rounded p-3 text-gray-dark mr-2 focus:outline-none mb-5"
+              required
+            />
+            <input
+              id="emp_id"
+              placeholder="Enter The Employee ID"
+              type="text"
+              class="w-full border-2 border-gray-200 rounded p-3 text-gray-dark mr-2 focus:outline-none mb-5"
+              required
+            />
+
+            <button
+              class="bg-gray-600 rounded w-full text-white py-3 px-4 mt-5 hover:bg-black"
+              type="submit"
+              onclick="generateQRcode()"
+            >
+              Generate QR Code
+            </button>
+          </form>
+        </div>
+        <div class="w-full md:w-1/3 self-center">
+          <img
+            src="img/qr-code.svg"
+            class="w-1/2 m-auto md:w-full mb-10"
+            alt=""
+          />
+        </div>
+      </div>
+
+      <!-- Generated QR Code -->
+      <div
+        id="generated"
+        class="max-w-5xl m-auto flex flex-col text-center align-center justify-center mt-20"
+      >
+        <!-- Spinner -->
+        <div id="spinner" role="status">
+          <svg
+            class="inline mr-2 w-24 h-24 text-gray-200 animate-spin dark:text-gray-600 fill-pink-600"
+            viewBox="0 0 100 101"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="M100 50.5908C100 78.2051 77.6142 100.591 50 100.591C22.3858 100.591 0 78.2051 0 50.5908C0 22.9766 22.3858 0.59082 50 0.59082C77.6142 0.59082 100 22.9766 100 50.5908ZM9.08144 50.5908C9.08144 73.1895 27.4013 91.5094 50 91.5094C72.5987 91.5094 90.9186 73.1895 90.9186 50.5908C90.9186 27.9921 72.5987 9.67226 50 9.67226C27.4013 9.67226 9.08144 27.9921 9.08144 50.5908Z"
+              fill="currentColor"
+            />
+            <path
+              d="M93.9676 39.0409C96.393 38.4038 97.8624 35.9116 97.0079 33.5539C95.2932 28.8227 92.871 24.3692 89.8167 20.348C85.8452 15.1192 80.8826 10.7238 75.2124 7.41289C69.5422 4.10194 63.2754 1.94025 56.7698 1.05124C51.7666 0.367541 46.6976 0.446843 41.7345 1.27873C39.2613 1.69328 37.813 4.19778 38.4501 6.62326C39.0873 9.04874 41.5694 10.4717 44.0505 10.1071C47.8511 9.54855 51.7191 9.52689 55.5402 10.0491C60.8642 10.7766 65.9928 12.5457 70.6331 15.2552C75.2735 17.9648 79.3347 21.5619 82.5849 25.841C84.9175 28.9121 86.7997 32.2913 88.1811 35.8758C89.083 38.2158 91.5421 39.6781 93.9676 39.0409Z"
+              fill="currentFill"
+            />
+          </svg>
+          <span class="sr-only">Loading...</span>
+        </div>
+        <!-- Barcode Output -->
+        <!-- <p id="bartitle" class="mb-4">Barcode</p>
+        <div class="m-auto" id="barcode_container">
+          <svg id="barcode"></svg>
+        </div> -->
+        <!-- QR Code Output -->
+        <!-- <p class="mb-4" id="qrtitle">Qr Code</p> -->
+        <div id="qrcode" class="m-auto"></div>
+      </div>
+
+      <div
+        style="width: 750px"
+        class="align-center justify-center m-auto md:max-w-4xl p-10"
+      >
+        <div class="w-full mr-24">
+          <h3 class="mt-3 text-3xl font-bold mb-5 md:text-4xl">
+            Upload Image to Add QR Code
+          </h3>
+          <input
+            type="file"
+            onchange="previewImage1()"
+            id="img1"
+            accept="image/*"
+            class="w-full border-2 border-gray-200 rounded p-3 text-gray-dark mr-2 focus:outline-none mb-5"
+          />
+          <img
+            src=""
+            alt="Image Preview"
+            style="width: 639px; height: 1016px; display: none"
+            id="preview1"
+            class="m-auto"
+          />
+        </div>
+
+        <div class="w-full self-center">
+          <h3 class="mt-3 text-3xl font-bold mb-5 md:text-4xl">
+            Upload Image to Add Text
+          </h3>
+          <input
+            class="w-full border-2 border-gray-200 rounded p-3 text-gray-dark mr-2 focus:outline-none mb-5"
+            type="file"
+            onchange="previewImage2()"
+            id="img2"
+            accept="image/*"
+          />
+          <img
+            src=""
+            alt="Image Preview"
+            style="
+              width: 639px;
+              height: 1016px;
+              display: none;
+              margin-bottom: 15px;
+            "
+            id="preview2"
+            class="m-auto"
+          />
+        </div>
+      </div>
+      <div
+        style="width: 750px"
+        class="align-center justify-center m-auto md:flex-row p-10"
+      >
+        <button
+          class="bg-gray-600 rounded w-full text-white py-3 px-4 mt-5 hover:bg-black"
+          onclick="addQRCode()"
+        >
+          Add QR Code to Image
+        </button>
+        <button
+          class="bg-gray-600 rounded w-full text-white py-3 px-4 mt-5 hover:bg-black"
+          onclick="addText()"
+        >
+          Add Text to Image
+        </button>
+        <input
+          type="file"
+          id="img3"
+          accept="image/*"
+          class="w-full border-2 border-gray-200 rounded p-3 mt-5 text-gray-dark mr-2 focus:outline-none"
+        />
+        <!-- <button
+          onclick="insertImage()"
+          class="bg-gray-600 rounded w-full text-white py-3 px-4 mt-5 hover:bg-black"
+        >
+          Insert Personal Image
+        </button> -->
+        <button
+          class="bg-gray-600 rounded w-full text-white py-3 px-4 mt-5 hover:bg-black"
+          onclick="downloadImage()"
+        >
+          Download Modified Image
+        </button>
+      </div>
+    </main>
+
+    <script>
+      const input = document.getElementById("img3");
+      const img = document.getElementById("preview2");
+      input.addEventListener("change", () => {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          const newImg = new Image();
+          newImg.src = event.target.result;
+          newImg.style.borderRadius = "37px";
+          newImg.onload = function () {
+            let combinedImg = new Image();
+            let canvas = document.createElement("canvas");
+            canvas.width = img.width;
+            canvas.height = img.height;
+            let ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.drawImage(img, 0, 0);
+            ctx.drawImage(
+              newImg,
+              (img.width - 218) / 2,
+              (img.height - 275) / 2 - 98,
+              218,
+              275
+            );
+            combinedImg.src = canvas.toDataURL();
+            img.src = combinedImg.src;
+          };
+        };
+        reader.readAsDataURL(input.files[0]);
+      });
+
+      function previewImage1() {
+        document.getElementById("preview1").style.display = "block";
+        var preview = document.querySelector("img#preview1");
+        var file = document.querySelector("input#img1").files[0];
+        var reader = new FileReader();
+        reader.onloadend = function () {
+          preview.src = reader.result;
+          preview.style.width = "639px";
+          preview.style.height = "1016px";
+        };
+        if (file) {
+          reader.readAsDataURL(file);
+        } else {
+          preview.src = "";
+        }
+      }
+      function previewImage2() {
+        document.getElementById("preview2").style.display = "block";
+        var preview = document.querySelector("img#preview2");
+        var file = document.querySelector("input#img2").files[0];
+        var reader = new FileReader();
+        reader.onloadend = function () {
+          preview.src = reader.result;
+          preview.style.width = "639px";
+          preview.style.height = "1016px";
+        };
+        if (file) {
+          reader.readAsDataURL(file);
+        } else {
+          preview.src = "";
+        }
+      }
+
+      function generateQRcode() {
+        var qr = document.getElementById("qrcode");
+        qr.innerHTML = "";
+        const emp_name = document.getElementById("emp_name").value;
+        const job_role = document.getElementById("job_role").value;
+        const emp_dep = document.getElementById("emp_dep").value;
+        const emp_id = document.getElementById("emp_id").value;
+        //   const size = document.getElementById("size").value;
+        const size = 180;
+        var today = new Date();
+        const dd = String(today.getDate()).padStart(2, "0");
+        const mm = String(today.getMonth() + 1).padStart(2, "0"); //January is 0!
+        const yyyy = today.getFullYear();
+        today = dd + "/" + mm + "/" + yyyy;
+        // var qrText = document.querySelector("input[id=qrText]").value;
+        // qrText =
+        //   emp_name +
+        //   ", " +
+        //   job_role +
+        //   ", " +
+        //   emp_dep +
+        //   " ," +
+        //   emp_id +
+        //   " ," +
+        // today;
+        var qrText = emp_name;
+        // qrText = qrText.padEnd(220);
+        var qr = new QRCode(
+          "qrcode",
+          {
+            text: qrText,
+            width: size,
+            height: size,
+            colorDark: "#89320C",
+            colorLight: "#DFBA24",
+            correctLevel: QRCode.CorrectLevel.H,
+          },
+          function () {
+            removeOldQRcode();
+          }
+        );
+      }
+      function removeOldQRcode() {
+        var oldQR = document.querySelector("canvas");
+        if (oldQR) {
+          oldQR.remove();
+        }
+      }
+
+      function addQRCode() {
+        var img = document.querySelector("img#preview1");
+        var qrcode = document.querySelector("canvas");
+        // var qr = document.getElementById("qrcode");
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        var qrX = (canvas.width - qrcode.width) / 2;
+        var qrY = (canvas.height - qrcode.height) / 2 + 200;
+        ctx.drawImage(qrcode, qrX, qrY);
+
+        img.src = canvas.toDataURL();
+      }
+
+      function addText() {
+        var today = new Date();
+        const dd = String(today.getDate()).padStart(2, "0");
+        const mm = String(today.getMonth() + 1).padStart(2, "0");
+        const yyyy = today.getFullYear();
+        today = yyyy + "/" + mm + "/" + dd;
+
+        var img = document.querySelector("img#preview2");
+        var canvas = document.createElement("canvas");
+        var ctx = canvas.getContext("2d");
+        var nameText = document.querySelector("input[id=emp_name]").value;
+        var roleText = document.querySelector("input[id=job_role]").value;
+        var idText = document.querySelector("input[id=emp_id]").value;
+        var departmentText = document.querySelector("input[id=emp_dep]").value;
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        // Add text to the image
+        ctx.font = "46px Almarai";
+        ctx.fillStyle = "white";
+        ctx.textAlign = "right";
+        ctx.fillText(nameText, canvas.width / 2 + 115, canvas.height / 2 + 130);
+        ctx.fillText(roleText, canvas.width / 2 + 120, canvas.height / 2 + 200);
+        ctx.fillText(idText, canvas.width / 2 + 30, canvas.height / 2 + 265);
+        ctx.fillText(
+          departmentText,
+          canvas.width / 2 + 180,
+          canvas.height / 2 + 325
+        );
+        ctx.fillText(today, canvas.width / 2, canvas.height / 2 + 395);
+
+        img.src = canvas.toDataURL();
+        // insertThirdImage();
+      }
+
+      //   download zip file without ability to set the name
+      //   function downloadImage() {
+      //     var img1 = document.querySelector("img#preview1");
+      //     var img2 = document.querySelector("img#preview2");
+
+      //     // Create a new JSZip instance
+      //     var zip = new JSZip();
+
+      //     // Add the two images to the zip file
+      //     zip.file("image1.png", img1.src.split(",")[1], { base64: true });
+      //     zip.file("image2.png", img2.src.split(",")[1], { base64: true });
+
+      //     // Generate the zip file and trigger download
+      //     zip.generateAsync({ type: "blob" }).then(function (content) {
+      //         saveAs(content, "modified_images.zip");
+
+      //     });
+      //   }
+
+      function downloadImage() {
+        var filename = document.getElementById("emp_name").value;
+
+        var img1 = document.querySelector("img#preview1");
+        var img2 = document.querySelector("img#preview2");
+        var filename = document.querySelector("input[id=emp_name]").value;
+        if (!filename) {
+          filename = "modified_images.zip";
+        }
+
+        // Create a new JSZip instance
+        var zip = new JSZip();
+
+        // Add the two images to the zip file
+        zip.file("image1.png", img1.src.split(",")[1], { base64: true });
+        zip.file("image2.png", img2.src.split(",")[1], { base64: true });
+
+        // Generate the zip file
+        zip.generateAsync({ type: "blob" }).then(function (content) {
+          // Create an object URL from the zip file
+          var url = URL.createObjectURL(content);
+          // Create a download link
+          var link = document.createElement("a");
+          link.href = url;
+          link.download = filename;
+          link.click();
+          // Clean up the object URL
+          URL.revokeObjectURL(url);
+        });
+      }
+
+      document.getElementById("img3").onchange = function () {
+        var img2, img3;
+        console.log("insert the image function2");
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          img3 = new Image();
+          img3.src = e.target.result;
+        };
+        reader.readAsDataURL(this.files[0]);
+      };
+
+      //   function insertImage() {
+      // var img2, img3;
+      // if (img2 && img3) {
+      //   var canvas = document.getElementById("canvas");
+      //   var ctx = canvas.getContext("2d");
+      //   var radius = 37;
+      //   var x = (canvas.width - 230) / 2;
+      //   var y = (canvas.height - 290) / 2 - 97;
+      //   ctx.save();
+      //   ctx.beginPath();
+      //   ctx.moveTo(x + radius, y);
+      //   ctx.arcTo(x + 230, y, x + 230, y + 290, radius);
+      //   ctx.arcTo(x + 230, y + 290, x, y + 290, radius);
+      //   ctx.arcTo(x, y + 290, x, y, radius);
+      //   ctx.arcTo(x, y, x + 230, y, radius);
+      //   ctx.closePath();
+      //   ctx.clip();
+      //   ctx.drawImage(img3, x, y, 230, 290);
+      //   ctx.restore();
+      // }
+      // }
+
+      // function loadThirdImage() {
+      //   var input = document.querySelector("input[id=third-image]");
+      //   var preview = document.querySelector("img#third-image-preview");
+      //   var file = input.files[0];
+      //   var reader = new FileReader();
+
+      //   reader.onloadend = function () {
+      //     preview.src = reader.result;
+      //     insertThirdImage();
+      //   };
+      //   if (file) {
+      //     reader.readAsDataURL(file);
+      //   } else {
+      //     preview.src = "";
+      //   }
+      // }
+      // function insertThirdImage() {
+      //   var img2 = document.querySelector("img#preview2");
+      //   var img3 = document.querySelector("img#third-image-preview");
+      //   var canvas = document.createElement("canvas");
+      //   var ctx = canvas.getContext("2d");
+
+      //   canvas.width = img2.width;
+      //   canvas.height = img2.height;
+
+      //   ctx.drawImage(img2, 0, 0);
+      //   var img3X = (canvas.width - 245) / 2;
+      //   var img3Y = (canvas.height - 305) / 2;
+      //   ctx.drawImage(img3, img3X, img3Y, 245, 305);
+      //   img3.src = canvas.toDataURL();
+      // }
+    </script>
+  </body>
+</html>

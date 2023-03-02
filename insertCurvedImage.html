@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Image Upload and Insertion</title>
+    <style>
+      /* Style the buttons */
+      button {
+        background-color: #4267b2;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 5px;
+        border: none;
+        cursor: pointer;
+      }
+      /* Style the canvas */
+      canvas {
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.16),
+          0 2px 10px 0 rgba(0, 0, 0, 0.12);
+      }
+      /* Center the container */
+      .container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+    </style>
+  </head>
+  <body>
+    <input type="file" id="image1" accept="image/*" />
+    <input type="file" id="image2" accept="image/*" />
+    <br /><br />
+    <button onclick="insertImage()">Insert Image</button>
+    <button id="downloadButton" onclick="downloadImage()">
+      Download Image
+    </button>
+    <br /><br />
+    <canvas id="canvas"></canvas>
+
+    <script>
+      var image1, image2;
+      var downloadButton = document.getElementById("downloadButton");
+      downloadButton.disabled = true;
+
+      document.getElementById("image1").onchange = function () {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          image1 = new Image();
+          image1.src = e.target.result;
+          image1.onload = function () {
+            var canvas = document.getElementById("canvas");
+            canvas.width = 639;
+            canvas.height = 1016;
+            var ctx = canvas.getContext("2d");
+            ctx.drawImage(image1, 0, 0);
+          };
+        };
+        reader.readAsDataURL(this.files[0]);
+      };
+
+      document.getElementById("image2").onchange = function () {
+        var reader = new FileReader();
+        reader.onload = function (e) {
+          image2 = new Image();
+          image2.src = e.target.result;
+        };
+        reader.readAsDataURL(this.files[0]);
+      };
+      // insert the image without style
+      // function insertImage() {
+      //     if (image1 && image2) {
+      //         var canvas = document.getElementById("canvas");
+      //         var ctx = canvas.getContext("2d");
+      //         ctx.drawImage(image2, (canvas.width - 245) / 2, (canvas.height - 305) / 2, 245, 305);
+      //         downloadButton.disabled = false;
+      //     }
+      // }
+
+      function insertImage() {
+        if (image1 && image2) {
+          var canvas = document.getElementById("canvas");
+          var ctx = canvas.getContext("2d");
+          var radius = 20;
+          var x = (canvas.width - 245) / 2;
+          var y = (canvas.height - 305) / 2;
+          ctx.save();
+          ctx.beginPath();
+          ctx.moveTo(x + radius, y);
+          ctx.arcTo(x + 245, y, x + 245, y + 305, radius);
+          ctx.arcTo(x + 245, y + 305, x, y + 305, radius);
+          ctx.arcTo(x, y + 305, x, y, radius);
+          ctx.arcTo(x, y, x + 245, y, radius);
+          ctx.closePath();
+          ctx.clip();
+          ctx.drawImage(image2, x, y, 245, 305);
+          ctx.restore();
+          downloadButton.disabled = false;
+        }
+      }
+
+      function downloadImage() {
+        var canvas = document.getElementById("canvas");
+        var dataURL = canvas.toDataURL();
+        var a = document.createElement("a");
+        a.href = dataURL;
+        a.download = "new-image.png";
+        a.click();
+      }
+    </script>
+  </body>
+</html>
